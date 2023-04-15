@@ -45,7 +45,29 @@ Add the base URL of external images to your projects 'next.config.js' file
         domains: ["s.gravatar.com"],
     },
 
+
     npm run dev
+
+## MongoDB
+
+MongoDB Atlas
+    Security > Network Access > Allow access from anywhere > Confirm
+    Security > Database Access > Add New Database User > Specific Privileges >  Add User
+    Deployment > Database > Build a Database > Create username & Password
+    Copy URI
+
+## Stripe
+
+Create Product:
+Test Card information: 4242 4242 4242 4242
+Create Web Hook:
+    Test Mode : [Stripe Test Mode Docs](https://stripe.com/docs/stripe-cli)
+
+        stripe login
+        stripe listen --forward-to localhost:3000/api/webhooks/stripe
+        copy %STRIPE_WEBHOOK_SECRET%
+
+Endpoint: Developers > Webhooks > Add endpoint
 
 ## Deploy on Vercel
 

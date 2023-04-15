@@ -1,42 +1,49 @@
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import clientPromise from "../../../lib/mongodb";
+import Stripe from "stripe";
+
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default withApiAuthRequired(async function handler(req, res) {
   try {
     // Get currently logged in user from Auth0 session.
     const { user: currentUser } = await getSession(req, res);
 
-    const client = await clientPromise;
-    const db = client.db("blogGen");
-
-    const topup = 10;
-    const user = await db.collection("users").updateOne(
+    // Stripe
+    const lineItems = [
       {
-        auth0Id: currentUser.sub,
+        price: process.env.STRIPE_PRODUCT_PRICE_ID,
+        quantity: 1,
       },
-      {
-        $inc: {
-          availableTokens: topup,
-        },
-        $setOnInsert: {
-          auth0Id: currentUser.sub,
-          email: currentUser.email,
-          picture: currentUser.picture,
-          is_verified: currentUser.email_verified,
-          createdAt: new Date(),
+    ];
+
+    const protocol =
+      process.env.NODE_ENV === "development" ? "http://" : "https://";
+    const host = req.headers.host;
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${protocol}${host}/tokens/success`, // Must be an absolute URL
+      // cancel_url: `${protocol}${host}/tokens/cancel`, // Must be an absolute URL
+      payment_intent_data: {
+        metadata: {
+          sub: currentUser.sub,
         },
       },
-      {
-        upsert: true,
-      }
-    );
+      metadata: {
+        sub: currentUser.sub,
+      },
+    });
 
-    return res
-      .status(200)
-      .json({ status: true, data: user, message: `Token topup(${topup} tokens) was successful` });
+    res.status(200).json({
+      status: true,
+      data: checkoutSession,
+      message: `Token topup checkout session was successful`,
+    });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({
+    res.status(500).json({
       status: false,
       data: undefined,
       message:

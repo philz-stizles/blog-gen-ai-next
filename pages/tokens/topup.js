@@ -10,13 +10,15 @@ const TopUpPage = () => {
 
   const topupHandler = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       const response = await fetch("/api/tokens/topup", {
         method: "POST",
       });
       const json = await response.json();
-      console.log(json);
+      console.log(json.data.url);
       setIsLoading(false);
+
+      window.location.href = json.data.url;
     } catch (error) {
       setIsLoading(false);
       console.log(error);
@@ -27,7 +29,7 @@ const TopUpPage = () => {
     <div>
       <h1>This is the token topup</h1>
       <Button className="btn-primary" onClick={topupHandler}>
-        Add tokens
+        {isLoading ? "Loading..." : "Add tokens"}
       </Button>
     </div>
   );
