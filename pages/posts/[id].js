@@ -48,8 +48,8 @@ PostPage.getLayout = function getLayout(page, pageProps) {
   return <AppLayout {...pageProps}>{page}</AppLayout>;
 };
 
-export const getServerSideProps = withPageAuthRequired(
-  async (context) => {
+export const getServerSideProps = withPageAuthRequired({
+  getServerSideProps: async (context) => {
     // { req, res, params, query}
     const props = await getAsideProps(context);
     const { user: currentUser } = await getSession(req, res);
@@ -80,7 +80,7 @@ export const getServerSideProps = withPageAuthRequired(
         ...props,
       },
     };
-  }
-);
+  },
+});
 
 export default PostPage;

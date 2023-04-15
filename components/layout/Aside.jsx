@@ -18,15 +18,17 @@ const Aside = ({ tokens = 0, posts = [], postId }) => {
         </Button>
         <Link className="block mt-2 text-center" href="/tokens/topup">
           <FontAwesomeIcon icon={faCoins} className="text-yellow-500" />
-          <span className="pl-1">0 tokens available</span>
+          <span className="pl-1">{tokens} tokens available</span>
         </Link>
       </div>
       <div className="px-4 flex-1 overflow-auto bg-gradient-to-b from-slate-800 to-cyan-800">
         {posts.map((post) => (
           <Link
-          href={`/posts/${post._id}`}
+            href={`/posts/${post._id}`}
             key={post._id}
-            className={`${postId && postId === post._id ? 'bg-white/20 border-white ' : ''}py-1 border border-white/0 block text-ellipsis overflow-hidden whitespace-nowrap px-2 my-1 bg-white/10 rounded-sm cursor-pointer`}
+            className={`${
+              postId && postId === post._id ? "bg-white/20 border-white " : ""
+            }py-1 border border-white/0 block text-ellipsis overflow-hidden whitespace-nowrap px-2 my-1 bg-white/10 rounded-sm cursor-pointer`}
           ></Link>
         ))}
       </div>

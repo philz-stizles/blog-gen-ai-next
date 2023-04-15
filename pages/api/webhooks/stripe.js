@@ -1,6 +1,6 @@
 import Cors from "micro-cors";
+import { buffer } from "micro";
 import Stripe from "stripe";
-import verifyStripe from "@webdeveducation/next-verify-stripe";
 import clientPromise from "../../../lib/mongodb";
 
 const cors = Cors({
@@ -19,24 +19,23 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 const handler = async (req, res) => {
   if (req.method === "POST") {
+    const buf = await buffer(req);
+    const sig = req.headers["stripe-signature"];
     let event;
     try {
-      event = await verifyStripe({
-        req,
-        stripe,
-        webhookSecret,
-      });
-      console.log('EVENT: ', event);
+      event = stripe.webhooks.constructEvent(buf, sig, webhookSecret);
+      console.log("EVENT: ", event.data.object);
     } catch (error) {
-   //  console.log("ERROR: ", error);
+      res.status(400).send(`Webhook Error: ${err.message}`);
+      return;
     }
 
     switch (event.type) {
       case "payment_intent.succeeded":
         const client = await clientPromise;
         const db = client.db("blogGen");
-        const paymentIntentData = event.data.object; // event.data.object contains the payment_intent_data
-        const currentUserSub = paymentIntentData.metadata.sub;
+        const metadata = event.data.object.metadata; // event.data.object contains the payment_intent_data
+        const currentUserSub =  metadata.sub;
         const topup = 10;
         await db.collection("users").updateOne(
           {
@@ -65,6 +64,9 @@ const handler = async (req, res) => {
     }
 
     res.status(200).json({ status: true, message: "Payment successful" });
+  } else {
+    res.setHeader("Allow", "POST");
+    res.status(405).end("Method Not Allowed");
   }
 };
 

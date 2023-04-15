@@ -1,5 +1,4 @@
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import clientPromise from "../../../lib/mongodb";
 import Stripe from "stripe";
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -25,7 +24,7 @@ export default withApiAuthRequired(async function handler(req, res) {
       line_items: lineItems,
       mode: "payment",
       success_url: `${protocol}${host}/tokens/success`, // Must be an absolute URL
-      // cancel_url: `${protocol}${host}/tokens/cancel`, // Must be an absolute URL
+      cancel_url: `${protocol}${host}/tokens/cancel`, // Must be an absolute URL
       payment_intent_data: {
         metadata: {
           sub: currentUser.sub,

@@ -26,7 +26,13 @@ login:
 useUser:
 withPageAuthRequired:
 
-    export const getServerSideProps = withPageAuthRequired(async () => {
+    export const getServerSideProps = withPageAuthRequired({
+        getServerSideProps: async ({ req, res, params, query}) => {
+             
+            return {
+                props: {}
+            };
+        },
     });
 
 withApiAuthRequired:

@@ -1,5 +1,8 @@
+import { getSession } from "@auth0/nextjs-auth0";
+import clientPromise from "../lib/mongodb";
+
 export const getAsideProps = async (ctx) => {
-  const {req, res, params} = ctx;
+  const { req, res, params } = ctx;
   const { user: currentUser } = await getSession(req, res);
 
   const client = await clientPromise;
@@ -12,12 +15,13 @@ export const getAsideProps = async (ctx) => {
     return {
       tokens: 0,
       posts: [],
+      postId: params ? params.id : null,
     };
   }
 
   const posts = await db
     .collection("posts")
-    .findOne({
+    .find({
       userId: user._id,
     })
     .sort({ createdAt: -1 })
@@ -32,6 +36,6 @@ export const getAsideProps = async (ctx) => {
         ...rest,
       };
     }),
-    postId: params.id
+    postId: params ? params.id : null,
   };
 };

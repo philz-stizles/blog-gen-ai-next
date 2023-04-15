@@ -14,11 +14,15 @@ TopupSuccessPage.getLayout = function getLayout(page, pageProps) {
   return <AppLayout {...pageProps}>{page}</AppLayout>;
 };
 
-export const getServerSideProps = withPageAuthRequired(async (context) => {
-  const props = await getAsideProps(context);
-  return {
-    props,
-  };
+export const getServerSideProps = withPageAuthRequired({
+  getServerSideProps: async (context) => {
+    const props = await getAsideProps(context);
+
+    console.log(props);
+    return {
+      props,
+    };
+  },
 });
 
 export default TopupSuccessPage;
